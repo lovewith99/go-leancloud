@@ -28,6 +28,26 @@ func (p PushBody) toString() string {
 	return string(r)
 }
 
+func (p *PushBody) SetData(title, msg string, device_type, d map[string]interface{})  {
+	// device_type: (1:ios; 2:android; 3:wp; 4:ios and android; 0: ios and android and wp)
+	switch (device_type) {
+	case 1:
+		p.Data = IosPushData{}.Object(title, msg, d)
+	case 2:
+		p.Data = AndroidPushData{}.Object(title, msg, d)
+	case 3:
+		p.Data = WpPushData{}.Object(title, msg, d)
+	case 4:
+		p["ios"] = IosPushData{}.Object(title, msg, d)
+		p["android"] = AndroidPushData{}.Object(title, msg, d)
+	default:
+		p["ios"] = IosPushData{}.Object(title, msg, d)
+		p["android"] = AndroidPushData{}.Object(title, msg, d)
+		p["wp"] = WpPushData{}.Object(title, msg, d)
+	}
+
+}
+
 // Document: https://leancloud.cn/docs/push_guide.html#消息内容_Data
 type PushData interface {
 	PushType() string
@@ -56,15 +76,15 @@ type IosPushDataAlter struct {
 	LaunchImage    string   `json:"launch-image"`
 }
 
-// 苹果官方文档方式构建推送参数
-type ApsPushData struct {
-	Aps   IosPushDataBase `json:"aps"`
-	Other interface{}     `json:"other,omitempty"` // 自定义字段
-}
-
-func (p ApsPushData) PushType() string {
-	return "ios"
-}
+// 苹果官方文档方式构建推送参数(暂不支持)
+//type ApsPushData struct {
+//	Aps   IosPushDataBase `json:"aps"`
+//	Other interface{}     `json:"other,omitempty"` // 自定义字段
+//}
+//
+//func (p ApsPushData) PushType() string {
+//	return "ios"
+//}
 
 type IosPushData struct {
 	IosPushDataBase
@@ -73,6 +93,43 @@ type IosPushData struct {
 
 func (p IosPushData) PushType() string {
 	return "ios"
+}
+
+func (p *IosPushData) Object(title, msg string, d map[string]interface{}) *PushData {
+	p.Alter = msg
+
+	if v, ok := d["badge"]; ok {
+		p.Badge = v
+	} else {
+		p.Badge = "Increment"
+	}
+
+	if v, ok := d["category"]; ok {
+		category, _ := v.(string)
+		p.Category = category
+	}
+
+	if v, ok := d["thread-id"]; ok {
+		threadId, _ := v.(string)
+		p.ThreadId = threadId
+	}
+
+	if v, ok := d["sound"]; ok {
+		sound, _ := v.(string)
+		p.Sound = sound
+	}
+
+	if v, ok := d["content-available"]; ok {
+		contentAvailable, _ := v.(int)
+		p.ContentAvailable = contentAvailable
+	}
+
+	if v, ok := d["mutable-content"]; ok {
+		mutableContent, _ := v.(int)
+		p.MutableContent = mutableContent
+	}
+
+	return p
 }
 
 type AndroidPushData struct {
@@ -87,6 +144,27 @@ func (p AndroidPushData) PushType() string {
 	return "android"
 }
 
+func (p *AndroidPushData) Object(title, msg string, d map[string]interface{}) *PushData {
+	p.Alter = msg
+	p.Title = title
+
+	if v, ok := d["action"]; ok {
+		action, _ := v.(string)
+		p.Action = action
+	}
+
+	if v, ok := d["silent"]; ok {
+		silent, _ := v.(bool)
+		p.Silent = silent
+	}
+
+	if v, ok := d["other"]; ok {
+		p.Other = v
+	}
+
+	return p
+}
+
 type WpPushData struct {
 	Alter   string `json:"alter"`    // 消息内容
 	Title   string `json:"title"`    // 显示在通知栏标题
@@ -95,4 +173,16 @@ type WpPushData struct {
 
 func (p WpPushData) PushType() string {
 	return "wp"
+}
+
+func (p *WpPushData) Object(title, msg string, d map[string]interface{}) *PushData {
+	p.Alter = msg
+	p.Title = title
+
+	if v, ok := d["wp-param"]; ok {
+		wpParam, _ := v.(string)
+		p.WpParam = wpParam
+	}
+
+	return p
 }
