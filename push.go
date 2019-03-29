@@ -10,7 +10,7 @@ type PushBody struct {
 	Data interface{} `json:"data"` // 推送的内容数据，JSON 对象
 
 	// optional
-	Channels           []string    `json:"channels,omitempty"`            // 推送给哪些频道，将作为条件加入 where 对象
+	Channels           []interface{}    `json:"channels,omitempty"`            // 推送给哪些频道，将作为条件加入 where 对象
 	ExpirationInterval string      `json:"expiration_interval,omitempty"` // 消息过期的相对时间，从调用 API 的时间开始算起，单位是秒
 	ExpirationTime     string      `json:"expiration_time,omitempty"`     // 消息过期的绝对日期时间
 	NotificationId     string      `json:"notification_id,omitempty"`     // 自定义推送 id，最长 16 个字符且只能由英文字母和数字组成

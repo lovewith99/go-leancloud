@@ -14,7 +14,7 @@ var LeanCloud *go_leancloud.LeanClient = go_leancloud.GetLeanClient(leanAppId, l
 
 func main() {
 	pushBody := go_leancloud.PushBody{}
-	pushBody.Channels = []string{"doll1000000052"}
+	pushBody.Channels = []interface{}{"doll1000000052"}
 	pushBody.Prod = "dev"
 	pushBody.SetData("aaa", "bbb", 2, map[string]interface{}{
 		"action":   "com.youcompany.xxx",
