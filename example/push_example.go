@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/fpagyu/go-leancloud"
+	goleancloud "github.com/fpagyu/go-leancloud"
 )
 
 const (
@@ -10,10 +10,10 @@ const (
 	leanMasterKey string = ""
 )
 
-var LeanCloud *go_leancloud.LeanClient = go_leancloud.GetLeanClient(leanAppId, leanAppKey, leanMasterKey)
+var LeanCloud *goleancloud.LeanClient = goleancloud.GetLeanClient(leanAppId, leanAppKey, leanMasterKey)
 
 func main() {
-	pushBody := go_leancloud.PushBody{}
+	pushBody := goleancloud.PushBody{}
 	pushBody.Channels = []interface{}{"doll1000000052"}
 	pushBody.Prod = "dev"
 	pushBody.SetData("aaa", "bbb", 2, map[string]interface{}{

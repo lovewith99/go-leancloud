@@ -1,4 +1,4 @@
-package go_leancloud
+package goleancloud
 
 import (
 	"encoding/json"
