@@ -10,22 +10,22 @@ type PushBody struct {
 	Data interface{} `json:"data"` // 推送的内容数据，JSON 对象
 
 	// optional
-	Channels           []interface{}    `json:"channels,omitempty"`            // 推送给哪些频道，将作为条件加入 where 对象
-	ExpirationInterval string      `json:"expiration_interval,omitempty"` // 消息过期的相对时间，从调用 API 的时间开始算起，单位是秒
-	ExpirationTime     string      `json:"expiration_time,omitempty"`     // 消息过期的绝对日期时间
-	NotificationId     string      `json:"notification_id,omitempty"`     // 自定义推送 id，最长 16 个字符且只能由英文字母和数字组成
-	Prod               string      `json:"prod,omitempty"`                // 仅对iOS有效, 设置使用开发证书, 还是生产证书
-	PushTime           string      `json:"push_time,omitempty"`           // 定期推送时间
-	ReqId              string      `json:"req_id,omitempty"`              // 自定义请求 id，最长 16 个字符且只能由英文字母和数字组成
-	Where              interface{} `json:"where,omitempty"`               // 检索 _Installation 表使用的查询条件，JSON 对象。
+	Channels           []interface{} `json:"channels,omitempty"`            // 推送给哪些频道，将作为条件加入 where 对象
+	ExpirationInterval string        `json:"expiration_interval,omitempty"` // 消息过期的相对时间，从调用 API 的时间开始算起，单位是秒
+	ExpirationTime     string        `json:"expiration_time,omitempty"`     // 消息过期的绝对日期时间
+	NotificationId     string        `json:"notification_id,omitempty"`     // 自定义推送 id，最长 16 个字符且只能由英文字母和数字组成
+	Prod               string        `json:"prod,omitempty"`                // 仅对iOS有效, 设置使用开发证书, 还是生产证书
+	PushTime           string        `json:"push_time,omitempty"`           // 定期推送时间
+	ReqId              string        `json:"req_id,omitempty"`              // 自定义请求 id，最长 16 个字符且只能由英文字母和数字组成
+	Where              interface{}   `json:"where,omitempty"`               // 检索 _Installation 表使用的查询条件，JSON 对象。
 }
 
-func (p PushBody) toString() string {
+func (p *PushBody) Buffer() []byte {
 	r, err := json.Marshal(&p)
 	if err != nil {
-		return ""
+		return nil
 	}
-	return string(r)
+	return r
 }
 
 func (p *PushBody) SetData(title, msg string, device_type int, d map[string]interface{}) {

@@ -1,9 +1,10 @@
 package go_leancloud
 
 import (
-	"net/http"
-	"strings"
+	"bytes"
 	"io/ioutil"
+	"net/http"
+	"time"
 )
 
 type LeanClient struct {
@@ -13,17 +14,23 @@ type LeanClient struct {
 	*http.Client
 }
 
-func GetLeanClient(appId, appKey, masterKey string) *LeanClient {
+func NewLeanClient(appId, appKey, masterKey string) *LeanClient {
 	return &LeanClient{
 		AppId:     appId,
 		AppKey:    appKey,
 		MasterKey: masterKey,
-		Client:    http.DefaultClient,
+		Client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 }
 
-func (cli *LeanClient) NewRequest(method, apiUrl, buf string) (*http.Request, error) {
-	req, err := http.NewRequest(method, apiUrl, strings.NewReader(buf))
+func GetLeanClient(appId, appKey, masterKey string) *LeanClient {
+	return NewLeanClient(appId, appKey, masterKey)
+}
+
+func (cli *LeanClient) NewRequest(method, apiUrl string, buf []byte) (*http.Request, error) {
+	req, err := http.NewRequest(method, apiUrl, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +43,7 @@ func (cli *LeanClient) NewRequest(method, apiUrl, buf string) (*http.Request, er
 }
 
 func (cli *LeanClient) Push(p *PushBody) error {
-	req, err :=  cli.NewRequest("POST", "https://api.leancloud.cn/1.1/push", p.toString())
+	req, err := cli.NewRequest("POST", "https://api.leancloud.cn/1.1/push", p.Buffer())
 	if err != nil {
 		return err
 	}
@@ -54,3 +61,26 @@ func (cli *LeanClient) Push(p *PushBody) error {
 
 	return nil
 }
+
+// // PostServiceConv 创建服务号
+// func (cli *LeanClient) PostServiceConv(name string) error {
+// 	body := map[string]interface{}{
+// 		"name": name,
+// 	}
+// 	buf, _ := json.Marshal(body)
+// 	req, err := cli.NewRequest("POST", "https://api.leancloud.cn/1.2/rtm/service-conversations", buf)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	resp, err := cli.Do(req)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer resp.Body.Close()
+// 	// resp, err = ioutil.ReadAll(resp.Body)
+// 	// if err != nil {
+// 	// 	return err
+// 	// }
+// 	return nil
+// 	// buf := json.Marshal
+// }
