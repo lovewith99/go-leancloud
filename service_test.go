@@ -6,7 +6,7 @@ func TestServiceConv(t *testing.T) {
 	serviceName := "sys-upseries"
 
 	cli := NewLeanClient(leanAppId, leanAppKey, leanMasterKey).NewServiceContext()
-	r2, err := cli.GetServiceConv(serviceName, 0, 1)
+	r2, err := cli.GetService(serviceName, 0, 1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -14,7 +14,7 @@ func TestServiceConv(t *testing.T) {
 
 	var convId string
 	if len(r2.Results) == 0 {
-		r, err := cli.PostServiceConv(serviceName)
+		r, err := cli.PostService(serviceName)
 		if err != nil {
 			t.Error(err)
 		}
@@ -24,7 +24,7 @@ func TestServiceConv(t *testing.T) {
 		convId = r2.Results[0].ObjectId
 	}
 
-	r1, err := cli.BroadcastServiceConv(&ServiceConvBroadcastRequest{
+	r1, err := cli.Pub(&ServiceConvBroadcastRequest{
 		ConvId:     convId,
 		FromClient: "system",
 		Message:    "12345678",

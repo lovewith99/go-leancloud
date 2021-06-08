@@ -32,6 +32,10 @@ func GetLeanClient(appId, appKey, masterKey string) *LeanClient {
 	return NewLeanClient(appId, appKey, masterKey)
 }
 
+func (cli *LeanClient) SetEndpoint(endpoint string) {
+	cli.Endpoint = endpoint
+}
+
 func (cli *LeanClient) NewServiceContext() *ServiceContext {
 	return &ServiceContext{
 		LeanClient: cli,

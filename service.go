@@ -12,8 +12,8 @@ type ServiceContext struct {
 	*LeanClient
 }
 
-// GetServiceConv 查询服务号
-func (cli *ServiceContext) GetServiceConv(name string, skip, limit int) (*GetServiceConvResponse, error) {
+// GetService 查询服务号
+func (cli *ServiceContext) GetService(name string, skip, limit int) (*GetServiceConvResponse, error) {
 	p := url.Values{}
 	p.Add("where", fmt.Sprintf(`{"name": "%s"}`, name))
 	if skip > 0 {
@@ -46,8 +46,8 @@ func (cli *ServiceContext) GetServiceConv(name string, skip, limit int) (*GetSer
 	return &r, nil
 }
 
-// PostServiceConv 创建服务号
-func (cli *ServiceContext) PostServiceConv(name string) (*PostServiceConvResponse, error) {
+// PostService 创建服务号
+func (cli *ServiceContext) PostService(name string) (*PostServiceConvResponse, error) {
 	body := map[string]interface{}{
 		"name": name,
 	}
@@ -75,8 +75,8 @@ func (cli *ServiceContext) PostServiceConv(name string) (*PostServiceConvRespons
 	return &r, nil
 }
 
-// BroadcastServiceConv 给所有订阅者发消息
-func (cli *ServiceContext) BroadcastServiceConv(request *ServiceConvBroadcastRequest) (*ServiceConvBroadcastResponse, error) {
+// Pub 给所有订阅者发布消息
+func (cli *ServiceContext) Pub(request *ServiceConvBroadcastRequest) (*ServiceConvBroadcastResponse, error) {
 	buf, _ := json.Marshal(request)
 	req, err := cli.NewRequest("POST",
 		fmt.Sprintf("%s/1.2/rtm/service-conversations/%s/broadcasts",
