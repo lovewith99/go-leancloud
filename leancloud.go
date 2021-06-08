@@ -2,9 +2,7 @@ package goleancloud
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -34,8 +32,19 @@ func GetLeanClient(appId, appKey, masterKey string) *LeanClient {
 	return NewLeanClient(appId, appKey, masterKey)
 }
 
+func (cli *LeanClient) NewServiceContext() *ServiceContext {
+	return &ServiceContext{
+		LeanClient: cli,
+	}
+}
+
 func (cli *LeanClient) NewRequest(method, apiUrl string, buf []byte) (*http.Request, error) {
-	req, err := http.NewRequest(method, apiUrl, bytes.NewBuffer(buf))
+	var body io.Reader
+	if buf != nil {
+		body = bytes.NewBuffer(buf)
+	}
+
+	req, err := http.NewRequest(method, apiUrl, body)
 	if err != nil {
 		return nil, err
 	}
@@ -65,61 +74,4 @@ func (cli *LeanClient) Push(p *PushBody) error {
 	}
 
 	return nil
-}
-
-// PostServiceConv 创建服务号
-func (cli *LeanClient) PostServiceConv(name string) (*PostServiceConvResponse, error) {
-	body := map[string]interface{}{
-		"name": name,
-	}
-	buf, _ := json.Marshal(body)
-	req, err := cli.NewRequest("POST", cli.Endpoint+"/1.2/rtm/service-conversations", buf)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := cli.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var r PostServiceConvResponse
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	if err != nil {
-		return nil, err
-	}
-
-	if r.Error != "" {
-		return &r, errors.New(r.Error)
-	}
-
-	return &r, nil
-}
-
-// BroadcastServiceConv 给所有订阅者发消息
-func (cli *LeanClient) BroadcastServiceConv(request *ServiceConvBroadcastRequest) (*ServiceConvBroadcastResponse, error) {
-	buf, _ := json.Marshal(request)
-	req, err := cli.NewRequest("POST",
-		fmt.Sprintf("%s/1.2/rtm/service-conversations/%s/broadcasts",
-			cli.Endpoint, request.ConvId), buf)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := cli.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var r ServiceConvBroadcastResponse
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	if err != nil {
-		return nil, err
-	}
-
-	if r.Error != "" {
-		return &r, errors.New(r.Error)
-	}
-
-	return &r, nil
 }
