@@ -8,9 +8,8 @@ const (
 	leanMasterKey string = ""
 )
 
-var LeanCloud *LeanClient = NewLeanClient(leanAppId, leanAppKey, leanMasterKey)
-
 func TestLeanCloudPush(t *testing.T) {
+	cli := NewLeanClient(leanAppId, leanAppKey, leanMasterKey)
 	pushBody := PushBody{
 		Channels: []interface{}{"doll1000000052"},
 		Prod:     "dev",
@@ -19,5 +18,5 @@ func TestLeanCloudPush(t *testing.T) {
 		"action":   "com.youcompany.xxx",
 		"push_key": "RRR",
 	})
-	LeanCloud.Push(&pushBody)
+	cli.Push(&pushBody)
 }
