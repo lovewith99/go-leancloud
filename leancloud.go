@@ -2,8 +2,7 @@ package goleancloud
 
 import (
 	"bytes"
-	"io"
-	"io/ioutil"
+	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -42,29 +41,19 @@ func (cli *LeanClient) NewServiceContext() *ServiceContext {
 	}
 }
 
-func (cli *LeanClient) NewRequest(method, apiUrl string, buf []byte) (*http.Request, error) {
-	var body io.Reader
-	if buf != nil {
-		body = bytes.NewBuffer(buf)
-	}
+func (cli *LeanClient) SetReqHeader(req *http.Request) {
+	req.Header.Set("X-LC-Id", cli.AppId)
+	req.Header.Set("X-LC-Key", cli.AppKey)
+	req.Header.Set("Content-Type", "application/json")
+}
 
-	req, err := http.NewRequest(method, apiUrl, body)
-	if err != nil {
-		return nil, err
-	}
-
+func (cli *LeanClient) SetReqMasterHeader(req *http.Request) {
 	req.Header.Set("X-LC-Id", cli.AppId)
 	req.Header.Set("X-LC-Key", cli.MasterKey+",master")
 	req.Header.Set("Content-Type", "application/json")
-
-	return req, nil
 }
 
-func (cli *LeanClient) Push(p *PushBody) error {
-	req, err := cli.NewRequest("POST", cli.Endpoint+"/1.1/push", p.Buffer())
-	if err != nil {
-		return err
-	}
+func (cli *LeanClient) DoRequest(req *http.Request, response interface{}) error {
 
 	resp, err := cli.Do(req)
 	if err != nil {
@@ -72,10 +61,20 @@ func (cli *LeanClient) Push(p *PushBody) error {
 	}
 	defer resp.Body.Close()
 
-	_, err = ioutil.ReadAll(resp.Body)
+	return json.NewDecoder(resp.Body).Decode(&response)
+}
+
+func (cli *LeanClient) Push(p *PushBody) error {
+	req, err := http.NewRequest(
+		"POST",
+		cli.Endpoint+"/1.1/push",
+		bytes.NewBuffer(p.Buffer()),
+	)
 	if err != nil {
 		return err
 	}
+	cli.SetReqMasterHeader(req)
 
-	return nil
+	var resp map[string]interface{}
+	return cli.DoRequest(req, &resp)
 }

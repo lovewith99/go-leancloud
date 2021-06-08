@@ -6,32 +6,46 @@ func TestServiceConv(t *testing.T) {
 	serviceName := "sys-upseries"
 
 	cli := NewLeanClient(leanAppId, leanAppKey, leanMasterKey).NewServiceContext()
-	r2, err := cli.GetService(serviceName, 0, 1)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log("response: ", r2)
 
+	// 获取服务号
 	var convId string
-	if len(r2.Results) == 0 {
-		r, err := cli.PostService(serviceName)
+	if r, err := cli.GetService(serviceName, 0, 1); true {
+		t.Log("GetService: ", r)
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log("response: ", r)
-		convId = r.ObjectId
-	} else {
-		convId = r2.Results[0].ObjectId
+
+		if r != nil && len(r.Results) > 0 {
+			convId = r.Results[0].ObjectId
+		}
 	}
 
-	r1, err := cli.Pub(&ServiceConvBroadcastRequest{
+	if convId == "" {
+		if r, err := cli.PostService(serviceName); true {
+			t.Log("PostService: ", r)
+			if err != nil {
+				t.Error(err)
+			} else {
+				convId = r.ObjectId
+			}
+
+		}
+	}
+
+	t.Log("subscribe: ", cli.Subscribe(convId, "test01"))
+
+	pubmsg := &ServiceConvBroadcastRequest{
 		ConvId:     convId,
 		FromClient: "system",
 		Message:    "12345678",
-	})
-	if err != nil {
-		t.Error(err)
 	}
 
-	t.Log("response1: ", r1)
+	if r, err := cli.Pub(pubmsg); true {
+		t.Log("Pub: ", r)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+
+	t.Log("unsubscribe: ", cli.Unsubscribe(convId, "test01"))
 }
