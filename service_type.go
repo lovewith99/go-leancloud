@@ -32,7 +32,7 @@ type ServiceConvBroadcastRequest struct {
 	NoSync    bool        `json:"no_sync,omitempty"`   // 默认情况下消息会被同步给在线的 from_client 用户的客户端，设置为 true 禁用此功能
 	PushData  interface{} `json:"push_data,omitempty"` // 以消息附件方式设置本条消息的离线推送通知内容。如果目标接收者使用的是 iOS 设备并且当前不在线，我们会按照该参数填写的内容来发离线推送。
 	Priority  string      `json:"priority,omitempty"`  // 定义消息优先级，可选值为 high、normal、low，分别对应高、中、低三种优先级。该参数大小写不敏感，默认为高优先级 high。本参数仅对暂态消息或聊天室的消息有效，高优先级下在服务端与用户设备的连接拥塞时依然排队。
-	// Push      string      `json:"push,omitempty"`
+	Push      string      `json:"push,omitempty"`      // 附带的推送内容，如果设置，所有 iOS 和 Android 用户会收到这条推送通知。字符串或 JSON 对象
 }
 
 type ServiceConvBroadcastResponse struct {
