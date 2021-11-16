@@ -58,8 +58,15 @@ func (p *PushBody) SetData(title, msg string, device_type int, d map[string]inte
 		data["ios"], data["android"], data["wp"] = iosIns, andIns, wpIns
 		p.Data = data
 	default:
+		mixPush := map[string]interface{}{
+			"title": title,
+		}
 		d["alert"] = msg
 		d["title"] = title
+		d["mi"] = mixPush
+		d["hms"] = mixPush
+		d["vivo"] = mixPush
+		d["oppo"] = mixPush
 		p.Data = d
 	}
 }
