@@ -15,8 +15,8 @@ type LeanClient struct {
 	*http.Client
 }
 
-func NewLeanClient(appId, appKey, masterKey string) *LeanClient {
-	return &LeanClient{
+func NewLeanClient(appId, appKey, masterKey string, options ...func(*LeanClient)) *LeanClient {
+	cli := &LeanClient{
 		AppId:     appId,
 		AppKey:    appKey,
 		MasterKey: masterKey,
@@ -25,6 +25,12 @@ func NewLeanClient(appId, appKey, masterKey string) *LeanClient {
 			Timeout: 10 * time.Second,
 		},
 	}
+
+	for _, f := range options {
+		f(cli)
+	}
+
+	return cli
 }
 
 func GetLeanClient(appId, appKey, masterKey string) *LeanClient {
